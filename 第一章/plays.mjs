@@ -4,4 +4,4 @@ const plays = {
   othello: { name: 'Othello', type: 'tragedy' },
 };
 
-module.exports = plays;
+export default plays;

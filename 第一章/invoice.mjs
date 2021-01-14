@@ -16,4 +16,4 @@ const invoice = {
   ],
 };
 
-module.exports = invoice;
+export default invoice;
