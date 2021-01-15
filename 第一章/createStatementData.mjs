@@ -4,25 +4,7 @@ class PerformanceCalculator {
     this.play = aPlay;
   }
   get amount() {
-    let result = 0;
-    switch (this.play.type) {
-      case 'tragedy':
-        result = 40000;
-        if (this.performances.audience > 30) {
-          result += 1000 * (this.performances.audience - 30);
-        }
-        break;
-      case 'comedy':
-        result = 30000;
-        if (this.performances.audience > 20) {
-          result += 10000 + 500 * (this.performances.audience - 20);
-        }
-        result += 300 * this.performances.audience;
-        break;
-      default:
-        throw new Error(`unknown type: ${this.play.type}`);
-    }
-    return result;
+    throw new Error('subclass responsibility');
   }
   get volumeCredits() {
     let volumeCredits = 0;
@@ -30,6 +12,42 @@ class PerformanceCalculator {
     // add extra credit for every ten comedy attendees
     if ('comedy' === this.play.type) volumeCredits += Math.floor(this.performances.audience / 5);
     return volumeCredits;
+  }
+}
+
+function createPerformanceCalculator(aPerformance, aPlay) {
+  switch (aPlay.type) {
+    case 'tragedy':
+      return new TragedyCalculator(aPerformance, aPlay);
+    case 'comedy':
+      return new ComedyCalculator(aPerformance, aPlay);
+    default:
+      throw new Error(`unknown type: ${aPlay.type}`);
+  }
+}
+class TragedyCalculator extends PerformanceCalculator {
+  get amount() {
+    let result = 40000;
+    if (this.performances.audience > 30) {
+      result += 1000 * (this.performances.audience - 30);
+    }
+    return result;
+  }
+  get volumeCredits() {
+    return Math.max(this.performances.audience - 30, 0);
+  }
+}
+class ComedyCalculator extends PerformanceCalculator {
+  get amount() {
+    let result = 30000;
+    if (this.performances.audience > 20) {
+      result += 10000 + 500 * (this.performances.audience - 20);
+    }
+    result += 300 * this.performances.audience;
+    return result;
+  }
+  get volumeCredits() {
+    return super.volumeCredits + Math.floor(this.performances.audience / 5);
   }
 }
 
@@ -43,7 +61,7 @@ function createStatementData(invoice, plays) {
   return result;
 
   function enrichPerformance(aPerformance) {
-    const calculator = new PerformanceCalculator(aPerformance, playFor(aPerformance));
+    const calculator = createPerformanceCalculator(aPerformance, playFor(aPerformance));
     const result = Object.assign({}, aPerformance);
     result.play = calculator.play;
     result.amount = calculator.amount;
