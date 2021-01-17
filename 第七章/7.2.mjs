@@ -6,11 +6,11 @@ class Person {
   get name() {
     return this._name;
   }
-  get course() {
-    return this._courses;
+  get courses() {
+    return this._courses.slice();
   }
   set course(aList) {
-    this._courses = aList;
+    this._courses = aList.slice();
   }
   addCourse(aCourse) {
     this._courses.push(aCourse);
